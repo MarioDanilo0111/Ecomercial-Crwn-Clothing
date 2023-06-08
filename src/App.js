@@ -29,7 +29,11 @@ const App = () => {
     },
   ];
 
-  return <Directory categories={categories} />;
+  return (
+    <div className="app-css">
+      <Directory categories={categories} />
+    </div>
+  );
 };
 
 export default App;
