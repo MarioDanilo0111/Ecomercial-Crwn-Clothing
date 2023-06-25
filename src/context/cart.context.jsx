@@ -1,14 +1,14 @@
 import { createContext, useState, useEffect } from "react";
 
-const addCartItem = (cartItem, productToAdd) => {
+export const addCartItem = (cartItems, productToAdd) => {
   // find if cartItem contains productToAdd
-  const existingCartItem = cartItem.find(
+  const existingCartItem = cartItems.find(
     (cartItem) => cartItem.id === productToAdd.id
   );
 
   // if found, increment quantity
   if (existingCartItem) {
-    return cartItem.map((cartItem) =>
+    return cartItems.map((cartItem) =>
       cartItem.id === productToAdd.id
         ? { ...cartItem, quantity: cartItem.quantity + 1 }
         : cartItem
@@ -16,7 +16,25 @@ const addCartItem = (cartItem, productToAdd) => {
   }
 
   // return new array with modified cartItems/ new cart item
-  return [...cartItem, { ...productToAdd, quantity: 1 }];
+  return [...cartItems, { ...productToAdd, quantity: 1 }];
+};
+
+const removeCartItem = (cartItems, cartItemToRemove) => {
+  // find the cart Item to remove
+  const existingCartItem = cartItems.find(
+    (cartItem) => cartItem.id === cartItemToRemove.id
+  );
+  // check if queantity is equal to 1, if it is remove that item from the cart
+  if (existingCartItem.quantity === 1) {
+    return cartItems.filter((cartItem) => cartItem.id !== cartItemToRemove.id);
+  }
+
+  // return back cartitems with matching cart item with reduced quantity
+  return cartItems.map((cartItem) =>
+    cartItem.id === cartItemToRemove.id
+      ? { ...cartItem, quantity: cartItem.quantity - 1 }
+      : cartItem
+  );
 };
 
 export const CartContext = createContext({
@@ -27,12 +45,14 @@ export const CartContext = createContext({
   addItemToCart: () => {},
   /* cart counter */
   cartCount: 0,
+  /* Remove Item from Cart */
+  removeItemFromCart: () => {},
 });
 
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   /* add cart to dropdow */
-  const [cartItems, setCartImems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   /* count setter, increasing the count */
   const [cartCount, setCartCount] = useState(0);
 
@@ -46,13 +66,18 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addItemToCart = (productToAdd) => {
-    setCartImems(addCartItem(cartItems, productToAdd));
+    setCartItems(addCartItem(cartItems, productToAdd));
+  };
+  /* Decrement  */
+  const removeItemToCart = (cartItemToRemove) => {
+    setCartItems(removeCartItem(cartItems, cartItemToRemove));
   };
 
   const value = {
     isCartOpen,
     setIsCartOpen,
     addItemToCart,
+    removeItemToCart,
     cartItems,
     cartCount,
   };
