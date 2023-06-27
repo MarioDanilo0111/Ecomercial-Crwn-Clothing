@@ -53,6 +53,8 @@ export const CartContext = createContext({
   removeItemFromCart: () => {},
   /* Clear Items from Cart */
   clearItemFromCart: () => {},
+  /* total in the Checkout page */
+  cartTotal: 0,
 });
 
 export const CartProvider = ({ children }) => {
@@ -61,6 +63,8 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   /* count setter, increasing the count */
   const [cartCount, setCartCount] = useState(0);
+  /* to update Cart item total coust */
+  const [cartTotal, setCartTotal] = useState(0);
 
   /* useEffect to add the total of items added */
   useEffect(() => {
@@ -69,6 +73,15 @@ export const CartProvider = ({ children }) => {
       0
     );
     setCartCount(newCartCount);
+  }, [cartItems]);
+
+  /* To uppdate price in Checkout page */
+  useEffect(() => {
+    const newCartTotal = cartItems.reduce(
+      (total, cartItem) => total + cartItem.quantity * cartItem.price,
+      0
+    );
+    setCartTotal(newCartTotal);
   }, [cartItems]);
 
   const addItemToCart = (productToAdd) => {
@@ -92,6 +105,7 @@ export const CartProvider = ({ children }) => {
     clearItemFromCart,
     cartItems,
     cartCount,
+    cartTotal,
   };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
