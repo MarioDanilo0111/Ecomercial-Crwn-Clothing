@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useReducer } from "react";
 
 export const addCartItem = (cartItems, productToAdd) => {
   // find if cartItem contains productToAdd
@@ -64,14 +64,9 @@ const INITIAL_STATE = {
   cartTotal: 0,
 };
 
+/* Reducer to setCartItems */
 const cartReducer = (state, action) => {
   const { type, payload } = action;
-
-  /*  const payload = {
-    cartItem,
-    cartCount,
-    cartTotal,
-  }; */
 
   switch (type) {
     case "SET_CART_ITEMS":
@@ -85,48 +80,51 @@ const cartReducer = (state, action) => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  /* add cart to dropdow */
-  const [cartItems, setCartItems] = useState([]);
-  /* count setter, increasing the count */
-  const [cartCount, setCartCount] = useState(0);
-  /* to update Cart item total coust */
-  const [cartTotal, setCartTotal] = useState(0);
-
-  /* useEffect to add the total of items added */
-  useEffect(() => {
-    const newCartCount = cartItems.reduce(
+  const [{ cartItems, isCartOpen, cartCount, cartTotal }, dispatch] =
+    useReducer(cartReducer, INITIAL_STATE);
+  /* theMethod */
+  const updateCartItemReducer = (newCartItems) => {
+    const newCartCount = newCartItems.reduce(
       (total, cartItem) => total + cartItem.quantity,
       0
     );
-    setCartCount(newCartCount);
-  }, [cartItems]);
-
-  /* To uppdate price in Checkout page */
-  useEffect(() => {
-    const newCartTotal = cartItems.reduce(
+    const newCartTotal = newCartItems.reduce(
       (total, cartItem) => total + cartItem.quantity * cartItem.price,
       0
     );
-    setCartTotal(newCartTotal);
-  }, [cartItems]);
 
+    dispatch({
+      type: "SET_CART_ITEMS",
+      payload: {
+        cartItems: newCartItems,
+        cartTotal: newCartTotal,
+        cartCount: newCartCount,
+      },
+    });
+  };
+
+  /* Action Creater functions */
   const addItemToCart = (productToAdd) => {
-    setCartItems(addCartItem(cartItems, productToAdd));
+    const newCartItems = addCartItem(cartItems, productToAdd);
+    updateCartItemReducer(newCartItems);
   };
-  /* Decrement  */
+  /* Action Creater functions 
+   Decrement  */
   const removeItemToCart = (cartItemToRemove) => {
-    setCartItems(removeCartItem(cartItems, cartItemToRemove));
+    const newCartItems = removeCartItem(cartItems, cartItemToRemove);
+    updateCartItemReducer(newCartItems);
   };
 
-  /* Clear Cart Item  */
+  /* Action Creater functions 
+   Clear Cart Item  */
   const clearItemFromCart = (cartItemToClear) => {
-    setCartItems(clearCartItem(cartItems, cartItemToClear));
+    const newCartItems = clearCartItem(cartItems, cartItemToClear);
+    updateCartItemReducer(newCartItems);
   };
 
   const value = {
     isCartOpen,
-    setIsCartOpen,
+    setIsCartOpen: () => {},
     addItemToCart,
     removeItemToCart,
     clearItemFromCart,
