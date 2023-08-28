@@ -48,7 +48,6 @@ export const CartContext = createContext({
   cartItems: [],
   addItemToCart: () => {},
   /* cart counter */
-  cartCount: 0,
   /* Remove Item from Cart */
   removeItemFromCart: () => {},
   /* Clear Items from Cart */
@@ -56,6 +55,34 @@ export const CartContext = createContext({
   /* total in the Checkout page */
   cartTotal: 0,
 });
+
+/* Creating the reducer */
+const INITIAL_STATE = {
+  isCartOpen: false,
+  cartItems: [],
+  cartCount: 0,
+  cartTotal: 0,
+};
+
+const cartReducer = (state, action) => {
+  const { type, payload } = action;
+
+  /*  const payload = {
+    cartItem,
+    cartCount,
+    cartTotal,
+  }; */
+
+  switch (type) {
+    case "SET_CART_ITEMS":
+      return {
+        ...state,
+        ...payload,
+      };
+    default:
+      throw new Error(`unhandled type of ${type} in cartReducer`);
+  }
+};
 
 export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
